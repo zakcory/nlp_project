@@ -1,6 +1,6 @@
 import wandb
-YOUR_WANDB_USERNAME = "eilamshapira"
-project = "NLP2024_PROJECT_YOUR_UID"
+YOUR_WANDB_USERNAME = "horef"
+project = "NLP2024_PROJECT_HOREF"
 
 command = [
         "${ENVIRONMENT_VARIABLE}",
