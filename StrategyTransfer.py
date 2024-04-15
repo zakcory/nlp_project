@@ -54,6 +54,9 @@ parser.add_argument('--bots_per_user', type=int, default=6, help='Bots per user'
 parser.add_argument('--SIMULATION_EFs_PATH', type=str, default="data/EFs_by_GPT35.csv", help='Simulation EFs path')
 parser.add_argument('--favorite_topic_method', type=str, default="review", help='Favorite topic method')
 
+# The mean for the normal of the allowed lie distribution
+#parser.add_argument('--allowed_lie_mean', type=float, default=0.5, help='Allowed lie mean')
+
 # Advanced Projects' Features
 parser.add_argument('--agent', type=str, default="modelbasedRL", help='Agent type')
 parser.add_argument('--force_train', type=str2bool, default=True, help='Force training of environment')

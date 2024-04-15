@@ -225,6 +225,7 @@ class OnlineSimulationDataSet(Dataset):
         def __init__(self, user_improve, basic_nature, favorite_topic_method, **args):
             history_window = np.random.negative_binomial(2, 1 / 2) + np.random.randint(0, 2)
             quality_threshold = np.random.normal(8, 0.5)
+            lie_threshold = np.random.normal(0.5, 0.1)
             good_topics = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 19, 28, 42]
             bad_topics = [11, 20, 21, 22, 23, 24, 25, 26, 27, 36, 40]
             if favorite_topic_method == "random":
@@ -250,6 +251,28 @@ class OnlineSimulationDataSet(Dataset):
                                                                                             quality_threshold)),
                             4: ("LLM_static",  basic_nature[3], user_strategies.LLM_based(is_stochastic=False)),
                             5: ("LLM_dynamic", basic_nature[4], user_strategies.LLM_based(is_stochastic=True)),
+                            6: ("LLM_static_weighted", basic_nature[5], user_strategies.LLM_based_truth_weighted(is_stochastic=False)),
+                            7: ("LLM_dynamic_weighted", basic_nature[6], user_strategies.LLM_based_truth_weighted(is_stochastic=True)),
+                            8: ("User soft T4T", basic_nature[7], user_strategies.user_soft_t4t(lie_threshold)),
+                            9: ("User soft T4T window", basic_nature[8], user_strategies.user_soft_window_t4t(lie_threshold, history_window)),
+                            10: ("User hard T4T", basic_nature[9], user_strategies.user_hard_t4t),
+                            11: ("User hard T4T window", basic_nature[10], user_strategies.user_hard_window_t4t(history_window)),
+                            12: ("User soft T4T topic", basic_nature[11], user_strategies.user_soft_topic_t4t(positive_topics,
+                                                                                                             negative_topics,
+                                                                                                             quality_threshold,
+                                                                                                             lie_threshold)),
+                            13: ("User hard T4T topic", basic_nature[12], user_strategies.user_hard_topic_t4t(positive_topics,
+                                                                                                              negative_topics,
+                                                                                                              quality_threshold)),
+                            14: ("User soft T4T topic window", basic_nature[13], user_strategies.user_soft_topic_window_t4t(positive_topics,
+                                                                                                                            negative_topics,
+                                                                                                                            quality_threshold,
+                                                                                                                            history_window,
+                                                                                                                            lie_threshold)),
+                            15: ("User hard T4T topic window", basic_nature[14], user_strategies.user_hard_topic_window_t4t(positive_topics,
+                                                                                                                            negative_topics,
+                                                                                                                            quality_threshold,
+                                                                                                                            history_window))
                             }
             self.nature = np.random.rand(len(self.ACTIONS)) * np.array([v[1] for v in self.ACTIONS.values()])
             self.nature = self.nature / sum(self.nature)

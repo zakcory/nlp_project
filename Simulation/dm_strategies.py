@@ -155,23 +155,25 @@ def user_hard_t4t(information):
     else:
         return 0
 
-def user_hard_window_t4t(information, history_window):
+def user_hard_window_t4t(history_window):
     """
     Like hard TIT-for-TAT, but only looks in a certain history window.
     @param: information: The information of the current round.
     @param: history_window: the window of relevant information (how far back the user remembers).
     @return: 1 if the action is to go to the hotel, 0 otherwise.
     """
-    if len(information["previous_rounds"]) == 0 \
-            or np.min(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
-                                 or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
-                                information["previous_rounds"][-history_window:]])) == 1:  # cooperation
-        if information["bot_message"] >= 8:  # good hotel
-            return 1
+    def func(information):
+        if len(information["previous_rounds"]) == 0 \
+                or np.min(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
+                                     or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
+                                    information["previous_rounds"][-history_window:]])) == 1:  # cooperation
+            if information["bot_message"] >= 8:  # good hotel
+                return 1
+            else:
+                return 0
         else:
             return 0
-    else:
-        return 0
+    return func
 
 def user_hard_topic_t4t(positive_topics, negative_topics, quality_threshold):
     """
@@ -204,25 +206,27 @@ def user_hard_topic_t4t(positive_topics, negative_topics, quality_threshold):
 
     return func
 
-def user_soft_t4t(information, threshold):
+def user_soft_t4t(threshold):
     """
     Like hard TIT-for-TAT, but only agrees if the number of lies is below a given threshold.
     @param: information: The information of the current round.
     @param: threshold: the amount of lying that is allowed.
     @return: 1 if the action is to go to the hotel, 0 otherwise.
     """
-    if len(information["previous_rounds"]) == 0 \
-            or np.average(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
-                                 or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
-                                information["previous_rounds"]])) > threshold:  # cooperation
-        if information["bot_message"] >= 8:  # good hotel
-            return 1
+    def func(information):
+        if len(information["previous_rounds"]) == 0 \
+                or np.average(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
+                                     or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
+                                    information["previous_rounds"]])) > threshold:  # cooperation
+            if information["bot_message"] >= 8:  # good hotel
+                return 1
+            else:
+                return 0
         else:
             return 0
-    else:
-        return 0
+    return func
 
-def user_soft_window_t4t(information, threshold, history_window):
+def user_soft_window_t4t(threshold, history_window):
     """
         Like soft TIT-for-TAT, but only looks at the history in a certain window.
         @param: information: The information of the current round.
@@ -230,29 +234,32 @@ def user_soft_window_t4t(information, threshold, history_window):
         @param: history_window: the window of relevant information (how far back the user remembers).
         @return: 1 if the action is to go to the hotel, 0 otherwise.
         """
-    if len(information["previous_rounds"]) == 0 \
-            or np.average(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
-                                     or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
-                                    information["previous_rounds"][-history_window:]])) > threshold:  # cooperation
-        if information["bot_message"] >= 8:  # good hotel
-            return 1
+    def func(information):
+        if len(information["previous_rounds"]) == 0 \
+                or np.average(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
+                                         or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
+                                        information["previous_rounds"][-history_window:]])) > threshold:  # cooperation
+            if information["bot_message"] >= 8:  # good hotel
+                return 1
+            else:
+                return 0
         else:
             return 0
-    else:
-        return 0
+    return  func
 
 
-def user_soft_topic_t4t(positive_topics, negative_topics, quality_threshold):
+def user_soft_topic_t4t(positive_topics, negative_topics, quality_threshold, threshold):
     """
     Like the soft user t4t, but the quality of the review is not based on the godly information, but on the topics
     in the actual review.
     @param positive_topics: List of topics that are considered positive
     @param negative_topics: List of topics that are considered negative
     @param quality_threshold: The threshold for the review to be considered good
+    @param threshold: the amount of lying that is allowed.
     @return: A function(information, threshold) that based on the given information and the pre-made topics,
     returns the action.
     """
-    def func(information, threshold):
+    def func(information):
         review_personal_score = information["bot_message"]
         for rank, topic in enumerate(positive_topics):
             review_personal_score += int(information["review_features"][topic]) * 2 / (rank + 1)
@@ -271,17 +278,18 @@ def user_soft_topic_t4t(positive_topics, negative_topics, quality_threshold):
             return 0
     return func
 
-def user_soft_topic_window_t4t(positive_topics, negative_topics, quality_threshold, history_window):
+def user_soft_topic_window_t4t(positive_topics, negative_topics, quality_threshold, history_window, threshold):
     """
     Like the soft user topic t4t, but only looks in a certain history window.
     @param positive_topics: List of topics that are considered positive
     @param negative_topics: List of topics that are considered negative
     @param quality_threshold: The threshold for the review to be considered good
     @param history_window: the window of relevant information (how far back the user remembers).
+    @param threshold: the amount of lying that is allowed.
     @return: A function(information, threshold) that based on the given information and the pre-made topics,
     returns the action.
     """
-    def func(information, threshold):
+    def func(information):
         review_personal_score = information["bot_message"]
         for rank, topic in enumerate(positive_topics):
             review_personal_score += int(information["review_features"][topic]) * 2 / (rank + 1)
@@ -350,7 +358,7 @@ def topic_based(positive_topics, negative_topics, quality_threshold):
 def LLM_based(is_stochastic):
     """
     LLM based strategy, returns the action based on the LLM score.
-    @param is_stochastic: If False, returns 1 with probability of the LLM score. Otherwise, returns 1 with probability of 0.5.
+    @param is_stochastic: If True, returns 1 with probability of the LLM score. Otherwise, returns 1 with probability of 0.5.
     """
     with open(f"data/baseline_proba2go.txt", 'r') as file:
         proba2go = json.load(file)
@@ -359,10 +367,76 @@ def LLM_based(is_stochastic):
     if is_stochastic:
         def func(information):
             review_llm_score = proba2go[information["review_id"]]
-            return int(review_llm_score >= 0.5)
+            return int(np.random.rand() <= review_llm_score)
         return func
     else:
         def func(information):
             review_llm_score = proba2go[information["review_id"]]
-            return int(np.random.rand() <= review_llm_score)
+            return int(review_llm_score >= 0.5)
+        return func
+
+def LLM_based_truth_weighted(is_stochastic):
+    """
+    LLM based strategy, returns the action based on the LLM score multiplied by the percent of truth of the agent.
+    @param is_stochastic: If True, returns 1 with probability of the LLM score. Otherwise, returns 1 with probability of 0.5.
+    """
+    with open(f"data/baseline_proba2go.txt", 'r') as file:
+        proba2go = json.load(file)
+        proba2go = {int(k): v for k, v in proba2go.items()}
+
+    if is_stochastic:
+        def func(information):
+            review_llm_score = proba2go[information["review_id"]]
+            if len(information["previous_rounds"]) == 0:
+                return int(np.random.rand() <= review_llm_score)
+            else:
+                percent_truth = np.average(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
+                                             or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
+                                            information["previous_rounds"]]))
+                return int(np.random.rand() <= review_llm_score*percent_truth)
+        return func
+    else:
+        def func(information):
+            review_llm_score = proba2go[information["review_id"]]
+            if len(information["previous_rounds"]) == 0:
+                return int(review_llm_score >= 0.5)
+            else:
+                percent_truth = np.average(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
+                                             or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
+                                            information["previous_rounds"]]))
+                return int(review_llm_score*percent_truth >= 0.5)
+        return func
+
+def LLM_based_truth_weighted_window(is_stochastic, history_window):
+    """
+    LLM based strategy, returns the action based on the LLM score multiplied by the percent of truth of the agent
+    in a given window.
+    @param is_stochastic: If True, returns 1 with probability of the LLM score. Otherwise, returns 1 with probability of 0.5.
+    @param history_window: the window of relevant information (how far back the user remembers).
+    """
+    with open(f"data/baseline_proba2go.txt", 'r') as file:
+        proba2go = json.load(file)
+        proba2go = {int(k): v for k, v in proba2go.items()}
+
+    if is_stochastic:
+        def func(information):
+            review_llm_score = proba2go[information["review_id"]]
+            if len(information["previous_rounds"]) == 0:
+                return int(np.random.rand() <= review_llm_score)
+            else:
+                percent_truth = np.average(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
+                                             or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
+                                            information["previous_rounds"][-history_window:]]))
+                return int(np.random.rand() <= review_llm_score*percent_truth)
+        return func
+    else:
+        def func(information):
+            review_llm_score = proba2go[information["review_id"]]
+            if len(information["previous_rounds"]) == 0:
+                return int(review_llm_score >= 0.5)
+            else:
+                percent_truth = np.average(np.array([((r[BOT_ACTION] >= 8 and r[REVIEWS].mean() >= 8)
+                                             or (r[BOT_ACTION] <= 8 and r[REVIEWS].mean() < 8)) for r in
+                                            information["previous_rounds"][-history_window:]]))
+                return int(review_llm_score*percent_truth >= 0.5)
         return func
