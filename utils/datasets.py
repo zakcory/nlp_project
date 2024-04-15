@@ -239,6 +239,8 @@ class OnlineSimulationDataSet(Dataset):
                 negative_topics = np.array(negative_topics)
                 np.random.shuffle(negative_topics)
 
+            # possible actions for a simulated users,
+            # the probability of each action is determined by the nature of the user
             self.ACTIONS = {0: ("correct", 0, user_strategies.correct_action),
                             1: ("random", basic_nature[0], user_strategies.random_action),
                             2: ("history_and_review_quality", basic_nature[1],

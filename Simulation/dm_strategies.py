@@ -11,8 +11,13 @@ USER_DECISION = 2
 
 
 ################################
+# STRATEGIES
+################################
 
 def correct_action(information):
+    """
+    Oracle strategy, always returns the correct action
+    """
     if information["hotel_value"] >= 8:
         return 1
     else:
@@ -20,10 +25,17 @@ def correct_action(information):
 
 
 def random_action(information):
+    """
+    Random strategy, returns a random action
+    """
     return np.random.randint(2)
 
 
 def user_rational_action(information):
+    """
+    Rational user strategy, returns the action that maximizes the expected utility (based on the review provided).
+    Returns 1 if the review is higher than 8, 0 otherwise.
+    """
     if information["bot_message"] >= 8:
         return 1
     else:
@@ -31,6 +43,9 @@ def user_rational_action(information):
 
 
 def user_picky(information):
+    """
+    Like the rational user strategy, but only returns 1 if the review is higher than 9
+    """
     if information["bot_message"] >= 9:
         return 1
     else:
@@ -38,6 +53,9 @@ def user_picky(information):
 
 
 def user_sloppy(information):
+    """
+    Like the rational user strategy, but only returns 1 if the review is higher than 7
+    """
     if information["bot_message"] >= 7:
         return 1
     else:
@@ -45,6 +63,9 @@ def user_sloppy(information):
 
 
 def user_short_t4t(information):
+    """
+    TIT-for-TAT strategy that looks one step back.
+    """
     if len(information["previous_rounds"]) == 0 \
             or (information["previous_rounds"][-1][BOT_ACTION] >= 8 and
                 information["previous_rounds"][-1][REVIEWS].mean() >= 8) \
@@ -59,9 +80,9 @@ def user_short_t4t(information):
 
 
 def user_picky_short_t4t(information):
-    if information["bot_message"] >= 9 or ((information["bot_message"] >= 8) and (
-            len(information["previous_rounds"]) == 0 or (
-            information["previous_rounds"][-1][REVIEWS].mean() >= 8))):  # good hotel
+    if (information["bot_message"] >= 9
+            or ((information["bot_message"] >= 8) and (len(information["previous_rounds"]) == 0
+            or (information["previous_rounds"][-1][REVIEWS].mean() >= 8)))):  # good hotel
         return 1
     else:
         return 0
@@ -98,6 +119,13 @@ def history_and_review_quality(history_window, quality_threshold):
 
 
 def topic_based(positive_topics, negative_topics, quality_threshold):
+    """
+    Topic based strategy, returns the action based on the topics in the review.
+    @param positive_topics: List of topics that are considered positive
+    @param negative_topics: List of topics that are considered negative
+    @param quality_threshold: The threshold for the review to be considered good
+    @return: A function that based on the given information and the pre-made topics, returns the action
+    """
     def func(information):
         review_personal_score = information["bot_message"]
         for rank, topic in enumerate(positive_topics):
@@ -112,6 +140,10 @@ def topic_based(positive_topics, negative_topics, quality_threshold):
 
 
 def LLM_based(is_stochastic):
+    """
+    LLM based strategy, returns the action based on the LLM score.
+    @param is_stochastic: If False, returns 1 with probability of the LLM score. Otherwise, returns 1 with probability of 0.5.
+    """
     with open(f"data/baseline_proba2go.txt", 'r') as file:
         proba2go = json.load(file)
         proba2go = {int(k): v for k, v in proba2go.items()}

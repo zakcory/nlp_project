@@ -1,0 +1,11 @@
+time_single_run = 3*60 => 180
+num_runs = 30
+sweep_run_mins = time_single_run*num_runs => 5,400
+sweep_run_hours = sweep_run_mins/60 => 90
+sweep_run_days = sweep_run_hours/24 => 3.75
+
+days_available = 54
+sweeps_possible = days_available/sweep_run_days => 14.4
+
+parallel_mult = 6
+total_sweeps = sweeps_possible*parallel_mult => 86.4

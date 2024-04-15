@@ -1,5 +1,5 @@
 import wandb
-YOUR_WANDB_USERNAME = "horef"
+YOUR_WANDB_USERNAME = "horef-team"
 project = "NLP2024_PROJECT_HOREF"
 
 command = [
@@ -11,7 +11,7 @@ command = [
     ]
 
 sweep_config = {
-    "name": "LSTM: SimFactor=0/4 for any features representation",
+    "name": "LSTM: BN=12, SimFactor=0/4 for any features representation",
     "method": "grid",
     "metric": {
         "goal": "maximize",

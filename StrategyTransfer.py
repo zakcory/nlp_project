@@ -24,7 +24,7 @@ parser.add_argument('--task', choices=["off_policy", "on_policy"], default="off_
 parser.add_argument('--ENV_LEARNING_RATE', type=float, default=1e-3, help='Learning rate')
 parser.add_argument('--loss_weight_type', type=str, default="None", help='Loss weight type')
 parser.add_argument('--save_artifacts', type=str2bool, default=True, help='Save artifacts flag')
-parser.add_argument('--strategies', default=None, help='Which strategies are include the training data')
+parser.add_argument('--strategies', default=None, help='Which strategies are included in the training data')
 parser.add_argument('--total_epochs', type=int, default=25, help='Number of epochs during training')
 
 # Input Features
@@ -67,7 +67,7 @@ parser.add_argument('--personas_group_number', type=int, default=-1, help='Perso
 
 args = parser.parse_args()
 
-main_run = wandb.init(project='Strategy_Transfer_TACL')
+main_run = wandb.init(project='NLP2024_PROJECT_HOREF')
 config = wandb.config
 
 config.update(args.__dict__)
